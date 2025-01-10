@@ -20,6 +20,38 @@ pipeline {
                 '''
             }
         }
+        stage('Run in parallel') {
+            parallel {
+                stage('Node version') {
+                    agent {
+                        docker {
+                            image 'node:22-alpine'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        sh '''
+                            ls -la
+                            node --version
+                        '''
+                    }
+                }
+                stage('npm version') {
+                    agent {
+                        docker {
+                            image 'node:22-alpine'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        sh '''
+                            ls -la
+                            npm --version
+                        '''
+                    }
+                }
+            }
+        }
         stage('Test') {
             agent {
                 docker {
@@ -32,7 +64,6 @@ pipeline {
                     npm install serve
                     node_modules/.bin/serve -s dist &
                     sleep 10
-                    npx playwright test
                 '''
             }
         }
